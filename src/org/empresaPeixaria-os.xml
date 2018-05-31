@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="http://moise.sourceforge.net/xml/os.xsl" type="text/xsl" ?>
+
+<organisational-specification
+    id="empresaPeixaria"
+    os-version="0.8"
+
+    xmlns='http://moise.sourceforge.net/os'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xsi:schemaLocation='http://moise.sourceforge.net/os
+                        http://moise.sourceforge.net/xml/os.xsd' >
+
+<structural-specification>
+	<role-definitions>
+	   <role id="funcionarios_empresa"/>
+	   <role id="funcionarios_barco" >   <extends role="funcionarios_empresa"/>  </role>
+	   <role id="capitao" >              <extends role="funcionarios_barco"/>  </role>
+	   <role id="pescador" >             <extends role="funcionarios_barco"/>  </role>
+	   <role id="aux_pesca" >        	 <extends role="funcionarios_barco"/>  </role>
+	   
+	   <role id="funcionarios_caminhao"> <extends role="funcionarios_empresa"/>  </role>
+	   <role id="motorista" >            <extends role="funcionarios_caminhao"/>  </role>
+	   <role id="carregador" >           <extends role="funcionarios_caminhao"/>  </role>
+	</role-definitions>
+	
+	<group-specification id="peixaria_group">
+	 <subgroups>
+			<group-specification id="equipe_navegacao" min="1" max="10">
+				 <roles>
+				  <role id="capitao" min="1" max="1"/>
+				  <role id="pescador" min="1" max="1"/>
+				  <role id="aux_pesca" min="1" max="1"/>
+				 </roles>
+			
+				 <links>
+				  <link from="capitao"    type="authority"     to="pescador" scope="intra-group" />
+				  <link from="capitao"    type="authority"     to="aux_pesca" scope="intra-group" />
+				  <link from="pescador"   type="authority"     to="aux_pesca" scope="intra-group" />
+				  <link from="funcionarios_barco" type="communication" to="funcionarios_barco"      scope="intra-group" />
+				 </links>
+			</group-specification>
+			
+			<group-specification id="equipe_transporte" min="1" max="10">
+				 <roles>
+				  <role id="motorista" min="1" max="1"/>
+				  <role id="carregador" min="1" max="1"/>
+				 </roles>
+			
+				 <links>
+				  <link from="motorista"  			type="authority"     to="carregador" 			scope="intra-group" />
+				  <link from="funcionarios_caminhao" type="communication" to="funcionarios_caminhao"  scope="intra-group" />
+				 </links>
+			</group-specification>
+	 </subgroups>
+	
+	 <formation-constraints>
+	    <compatibility from="funcionarios_empresa" to="funcionarios_empresa"  scope="intra-group" />
+	 </formation-constraints>
+	
+	</group-specification>
+	
+</structural-specification>
+
+<functional-specification>
+ <!-- ####################################### -->
+ <!-- ### Esquemas da Equipe de Navegação ### -->
+ <!-- ####################################### -->
+ <scheme id="g1t1ProcurarPeixesSch">
+    <goal id="g1t1_procurar_peixes" ds="Procurando por peixes no mar">
+ 		<plan operator="sequence">
+ 			<goal id="g1t1_preparar_inicio" ttf="10 minutes" ds="Se preparar para iniciar">
+		       <plan operator="parallel">
+		       		<goal id="g1t1_ligar_motor" ttf="10 minutes" ds="ligar os motores"></goal>
+		       		<goal id="g1t1_puxar_ancora" ttf="10 minutes" ds="puxar as ancoras"></goal>
+		       </plan>
+	        </goal> 	
+ 			<goal id="g1t1_localizar_cardume" ttf="10 minutes" ds="Localizar cardume de peixes"/>
+ 		</plan>
+ 	</goal>
+ 	
+  	<mission id="m_navegacao_t1" min="1" max="1">
+  		<goal id="g1t1_ligar_motor"/>
+    	<goal id="g1t1_localizar_cardume"/>
+    </mission>
+    
+    <mission id="m_auxilio_t1" min="1" max="1">
+    	<goal id="g1t1_puxar_ancora"/>
+    </mission>
+ </scheme>
+ 
+ <scheme id="g1t2RealizarPescariaSch">
+    <goal id="g1t2_realizar_pescaria" ds="Realizar pescaria">
+ 		<plan operator="sequence">
+ 			<goal id="g1t2_jogar_redes" ttf="10 minutes" ds="Jogar as redes em cima do cardume"/> 
+ 			<goal id="g1t2_recolher_redes" ttf="10 minutes" ds="Recolher as redes com os peixes"/>			
+ 		</plan>
+ 	</goal>
+
+    <mission id="m_pescaria_t2" min="1" max="1">
+    	<goal id="g1t2_jogar_redes"/>
+    	<goal id="g1t2_recolher_redes"/>
+    </mission>
+    
+ </scheme>
+  
+ <scheme id="g1t3DescarrPeixesPortoSch">
+    <goal id="g1t3_descar_peixes_embarc" ds="Descarregar os peixes no porto">
+    	<plan operator="sequence">
+    		<goal id="g1t3_nav_porto" ttf="10 minutes" ds="Navegar em direção ao Porto"/>
+    		<goal id="g1t3_preparar_parada" ds="Se preparar para parar no porto">
+    			<plan operator="parallel">
+    				<goal id="g1t3_desligar_motores" ttf="10 minutes" ds="Desligar os motores para iniciar parada no porto"/>
+    				<goal id="g1t3_soltar_ancora" ttf="10 minutes" ds="Soltar ancora para iniciar parada no porto"/>
+    			</plan>
+    		</goal>
+    		<goal id="g1t3_retir_peixes" ttf="10 minutes" ds="Retirar os peixes da embarcacao"/>  		
+    	</plan>
+    </goal>
+    
+    <mission id="m_navegacao_t3" min="1" max="1">
+    	<goal id="g1t3_nav_porto"/>
+	  	<goal id="g1t3_desligar_motores"/>
+	</mission>
+	    
+	<mission id="m_auxilio_t3" min="1" max="1">
+		<goal id="g1t3_retir_peixes"/>
+		<goal id="g1t3_soltar_ancora"/>
+	</mission>
+
+ </scheme>
+ <!-- ######################################## -->
+ <!-- ### Esquemas da Equipe de Transporte ### -->
+ <!-- ######################################## -->
+ <scheme id="g2t1RecolherPeixesSch">
+   <goal id="g2t1_recolher_peixes" ds="Recolher os peixes deixados no porto">
+     <plan operator="sequence">
+	   <goal id="g2t1_dirigir_ate_porto" ttf="10 minutes" ds="Dirigir até o porto"/>
+       <goal id="g2t1_desligar_caminhao"   ttf="10 minutes" ds="Desligar o caminhao"/>
+	   <goal id="g2t1_localizar_carregamento" ttf="10 minutes" ds="Localizar o carregamento de peixes"/>
+	   <goal id="g2t1_carregar_caminhao" ttf="10 minutes" ds="Carregar caminhao com os peixes"/>
+     </plan>
+   </goal>
+
+   <mission id="m_deslocamento_t1" min="1" max="1">
+     <goal id="g2t1_dirigir_ate_porto"/>
+     <goal id="g2t1_desligar_caminhao"/>    
+   </mission>
+   
+   <mission id="m_operacional_t1" min="1" max="2">
+     <goal id="g2t1_localizar_carregamento" />
+     <goal id="g2t1_carregar_caminhao" />
+   </mission>
+ </scheme>
+ 
+ <scheme id="g2t2LevarPeixDistribuidorSch">
+   <goal id="g2t2_levar_peix_distribuidor" ds="Levar os peixes até o distribuidor">
+     <plan operator="sequence">
+	   <goal id="g2t2_ligar_caminhao" ttf="10 minutes" ds="Ligar o caminhao"/>
+       <goal id="g2t2_verificar_rota_gps" ttf="10 minutes" ds="Verificar a rota no GPS"/>
+       <goal id="g2t2_dirigir_ate_distribuidor" ttf="10 minutes" ds="Dirigir até o distribuidor"/>
+       <goal id="g2t2_descarr_peixes" ttf="10 minutes" ds="Retirar os peixes do Caminhão e descarregar no Distribuidor"/>  		
+     </plan>
+   </goal>
+   
+   <mission id="m_deslocamento_t2" min="1" max="1">
+     <goal id="g2t2_ligar_caminhao"/>
+     <goal id="g2t2_verificar_rota_gps"/>
+     <goal id="g2t2_dirigir_ate_distribuidor"/>
+     <goal id="g2t2_descarr_peixes"/>
+   </mission>
+ </scheme>
+            
+</functional-specification>
+
+<normative-specification>
+	<norm id="n1"     type="obligation"    role="capitao"     mission="m_navegacao_t1"/>
+	<norm id="n2"     type="obligation"    role="aux_pesca"   mission="m_auxilio_t1" />
+	<norm id="n3"     type="obligation"    role="pescador"    mission="m_pescaria_t2"/>
+	<norm id="n4"     type="obligation"    role="capitao"     mission="m_navegacao_t3"/>
+	<norm id="n5"     type="obligation"    role="aux_pesca"    mission="m_auxilio_t3"/>
+	
+	<norm id="n6"     type="obligation"    role="motorista"    mission="m_deslocamento_t1"/>
+	<norm id="n7"     type="obligation"    role="carregador"   mission="m_operacional_t1" />
+	<norm id="n8"     type="obligation"    role="motorista"   mission="m_deslocamento_t2" />
+</normative-specification>
+
+</organisational-specification>
+

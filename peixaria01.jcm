@@ -1,0 +1,42 @@
+mas peixaria {
+	
+	//Barco 01 ##############################
+	agent capitaoAg1 : capitao.asl{ //criador
+      focus: oceano, porto, barco_01
+    }
+//   	agent pescadorAg : pescador.asl{ // pescador
+//      focus: oceano, porto, barco_01
+//    }
+//    agent auxPescaAg : aux_pesca.asl{ //aux pesca
+//      focus: oceano, porto, barco_01
+//    }
+    
+    //Caminhão 01 ##############################
+//   	agent samuelMot1 : motorista.asl{ //capitao
+//      focus: distribuidor, porto
+//    }
+//   	agent samuelCarr1 : carregador.asl{ // pescador
+//      focus: distribuidor, porto
+//    }
+	
+	//Artefatos
+	workspace peixaria{
+		
+		//Barco 01: capacidade máxima de peixes na rede por pescador = 25 / quantidade máxima de carga permitida de peixes = 500
+		artifact barco_01: peixaria.Barco(1, 25, 500)
+		artifact barco_02: peixaria.Barco(2, 50, 800)
+		
+		//Caminhao 01: capacidade máxima de peixes que o carregador consegue carregar por vez = 25 / quantidade máxima de carga permitida de peixes = 500
+//		artifact caminhao_01: peixaria.Caminhao(25, 500)
+		
+		//Oceano: quantidade de peixes disponível no mar = 100000
+		artifact oceano: peixaria.Oceano(100000)
+		//Porto: não há restrições de quantidade de armazenamento de peixes
+		artifact porto: peixaria.Porto()
+		//Distribuidor: não há restrições de quantidade de armazenamento de peixes
+//		artifact distribuidor: peixaria.Distribuidor()
+	}
+
+    // agent source path
+    asl-path: src/agt, src/agt/inc
+}
