@@ -3,58 +3,87 @@
 
 /* application domain goals */
 
-!start.
++meuCaminhaoEh(NomeCaminhao, IdCaminhao)
+	: .my_name(NomeAgent)
+	<-	
+	//Entrando no mesmo ambiente
+	joinWorkspace("peixaria",NomeWorkspace);
+	
+	//Focando no Caminhão
+	.concat("caminhao_0", IdCaminhao, NomeCaminhao);
+	lookupArtifact(NomeCaminhao, ArtCaminhaoId)[wid(NomeWorkspace)];
+	focus(ArtCaminhaoId);
+	incrementaEquipe(IdCaminhao, NomeAgent);
+	.print("Eu sou o: ", NomeAgent, " do: ", NomeCaminhao);
+	
+	//Adiciona à sua base de crença o nome de seus companheiros de equipe
+	.concat("motoristaAg", IdCaminhao, NomeMotorista);
+	+nomeMotorista(NomeMotorista);
+	
+	//Focando no Distribuidor
+	lookupArtifact(distribuidor, ArtDistribuidorId)[wid(NomeWorkspace)];
+	focus(ArtDistribuidorId);
+	
+	//Focando no Porto
+	lookupArtifact(porto, ArtPortoId)[wid(NomeWorkspace)];
+	focus(ArtPortoId);
+	
+//	.send(NomeMotorista, achieve, verificarPeixesPorto);
+.
+
++!buscar_peixes_porto 
+	: meuCaminhaoEh(_,IdCaminhao)
+	<-
+	?nomeMotorista(NomeMotorista);
+	.print("CARREGADOR responde ao MOTORISTA que está pronto para iniciar o Carregamento...");
+	.send(NomeMotorista, achieve, carregadorPronto);
+.
 
 /* Plans */
 
-+!start : message(X) <- printMsg(X).
-+!start : true <- .print("Eu sou o Carregador!").
-
-+play(Name,_,ArtGrup) 
-	: .my_name(Name)
-	<-	
-	lookupArtifact(ArtGrup, ArtId);
-	focus(ArtId);
-	.print("Focando no Caminhão: ", ArtGrup ,"...");
-	.
-
-+!g2t1_localizar_carregamento 
++!localizar_carregamento 
 	<- 
-	.print("localizando o carregamento de peixes no porto...")
+	.print("...localizando o carregamento de peixes no Porto...")
 	localizando_carregamento; //funcao do artefato Caminhao
-	.
+	!carregar_caminhao;
+.
 
-+!g2t1_carregar_caminhao 
-	: quantMaxCarga(CapaMaxArm,QuantPeixes) & capacCarregador(Capac) & (Capac+QuantPeixes) > CapaMaxArm & play(_,_,ArtGrup)
++!carregar_caminhao 
+	: quantMaxCarga(CapaMaxArm) & qtPeixesCarregados(QuantPeixes) & capacCarregador(Capac) & (Capac+QuantPeixes) > CapaMaxArm
 	<-
-	.print("preparando o Caminhao para ir em direção ao Distribuidor..."); 		
-	//Instanciando esquema 02 da equipe de Transporte
-	.concat("levarPeixesDistribuidor",ArtGrup, SchemeName);
-	addScheme(SchemeName);
-	.
+	?nomeMotorista(NomeMotorista)
+	.print("...01_preparando o Caminhao para ir em direção ao Distribuidor...");
 	
-+!g2t1_carregar_caminhao
-	: quantMaxCarga(CapaMaxArm,QuantPeixes) & qtPeixesArmazenado(QtRestante) & QtRestante<=0 & play(_,_,ArtGrup) 
+	.wait(1000);
+	
+	.print("CARREGADOR pede ao MOTORISTA para irem em direção ao Distribuidor descarregar, pois o Caminhão já está carregado...");
+	.send(NomeMotorista, achieve, ligar_caminhao);
+.
+	
++!carregar_caminhao
+	: quantMaxCarga(CapaMaxArm) & qtPeixesCarregados(QuantPeixes) & qtPeixesArmazenado(QtRestante) & QtRestante<=0
 	<-
-	.print("preparando o Caminhao para ir em direção ao Distribuidor..."); 		
-	//Instanciando esquema 03 da equipe de Transporte
-	//.nth(0,Grupo,ArtGrup);
-	.concat("levarPeixesDistribuidor",ArtGrup, SchemeName);
-	addScheme(SchemeName);
-	.	
+	?nomeMotorista(NomeMotorista)
+	.print("...02_preparando o Caminhao para ir em direção ao Distribuidor...");
 	
-+!g2t1_carregar_caminhao 
-	: quantMaxCarga(_,QuantPeixes) & groups(Grupo)
+	.wait(1000);
+	
+	.print("CARREGADOR pede ao MOTORISTA para irem em direção ao Distribuidor descarregar, pois o Caminhão já está carregado...");
+	.send(NomeMotorista, achieve, ligar_caminhao);
+.	
+	
++!carregar_caminhao 
+	: quantMaxCarga(CapaMaxArm) & qtPeixesCarregados(QuantPeixes) & qtPeixesArmazenado(QtRestante) & QtRestante>=0
 	<- 
-	.print("carregando o caminhao com o carregamento de peixes...")
+	.print("...03_carregando o caminhao com o carregamento de peixes...")
 	lookupArtifact(porto, ArtId); //busca o identificador do artefato Porto
 	carregar_caminhao(ArtId); //função do artefato Caminhao
 	
 	//consuta na base de crenças do agente
-	?quantMaxCarga(_,QuantTotalPeixes);
-	
-	.print("Quantidade de peixes retirados do Porto e recolhidos para este Caminhao: ", QuantTotalPeixes-QuantPeixes);
-	!g2t1_carregar_caminhao ;
-	.
+	?qtPeixesCarregados(QuantTotalPeixes);
+	.wait(1000);
+	.print("Quantidade de peixes retirados do Porto e recolhidos para este Caminhao: ", QuantTotalPeixes); //-QuantPeixes
+	!carregar_caminhao ;
+.
 	
 /* other plans */

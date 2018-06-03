@@ -13,7 +13,7 @@
 	.concat("barco_0", IdBarco, NomeBarco);
 	lookupArtifact(NomeBarco, ArtId)[wid(NomeWorkspace)];
 	focus(ArtId);
-	incrementaTripulacao;
+	incrementaTripulacao(IdBarco, NomeAgent);
 	.print("Eu sou o: ", NomeAgent, " do: ", NomeBarco);
 	
 	//Adiciona à sua base de crença o nome de seus companheiros de tripulacao
@@ -29,56 +29,68 @@
 	//Focando no Porto
 	lookupArtifact(porto, ArtPortoId)[wid(NomeWorkspace)];
 	focus(ArtPortoId);
+	
+//	.print("PESCADOR pede ao CAPITÃO para iniciarem a busca por peixes no Oceano, caso a tripulação já esteja completa...");
+//	.send(NomeCapitao, achieve, verificarPeixesOceano);
 .
 
 +!iniciar_pescaria 
-	: quantMaxCarga(CapaMaxArm,QuantPeixes) & QuantPeixes < CapaMaxArm & nomeCapitao(NomeCapitao)
+	: quantMaxCarga(CapaMaxArm) & qtPeixesCarregados(QuantPeixes) & QuantPeixes < CapaMaxArm
 	<-
-	.send(NomeCapitao, tell, pescadorPronto);
+	.print("PESCADOR verifica se tem capacidade disponível no Barco para iniciar uma pescaria...");
+	.wait(1000);
+	?nomeCapitao(NomeCapitao);
+	.print("PESCADOR responde ao CAPITÃO que está pronto para iniciar a Pescaria...");
+	.send(NomeCapitao, achieve, pescadorPronto);
 .
 
-+!g1t2_jogar_redes 
++!jogar_redes 
 	<-
-	.print("jogando as redes nos cardumes...");
+	.print("...jogando as redes nos cardumes...");
 	jogar_redes; //função do artefato Barco
 	.wait(1000);
-	!g1t2_recolher_redes;
-	.
-	
-+!g1t2_recolher_redes
-	: quantMaxCarga(CapaMaxArm,QuantPeixes) & capacRede(Capac) & (Capac+QuantPeixes)>CapaMaxArm & nomeCapitao(NomeCapitao) 
-	<-
-	.print("Quantidade atual de Peixes no Barco: ", QuantPeixes);
-	.print("recolhendo as redes para ir em direção ao Porto...");
-	.wait(1000);	
-
-	.send(NomeCapitao, achieve, g1t3_nav_porto);
+	!recolher_redes;
 .
 
-+!g1t2_recolher_redes
-	: quantMaxCarga(CapaMaxArm,QuantPeixes) & qtPeixesDisponivel(QtRestante) & QtRestante<=0 & nomeCapitao(NomeCapitao)
+//Se a capacidadade de armazenamento das redes + a quantidade de peixes já carregados no Barco 
+//for > que a capacidade máxima de armazenamento do Barco, entra aqui (encerra a Pescaria)	
++!recolher_redes
+	: quantMaxCarga(CapaMaxArm) & qtPeixesCarregados(QuantPeixes) & capacRede(Capac) & (Capac+QuantPeixes)>CapaMaxArm
 	<-
+	?nomeCapitao(NomeCapitao);
 	.print("Quantidade atual de Peixes no Barco: ", QuantPeixes);
-	.print("recolhendo as redes para ir em direção ao Porto..."); 	
+	.print("...01_recolhendo as redes para ir em direção ao Porto...");
 	.wait(1000);	
-	
-	.send(NomeCapitao, achieve, g1t3_nav_porto);
+	.print("PESCADOR pede ao CAPITÃO para irem ao Porto descarregar os peixes no Barco...");
+	.send(NomeCapitao, achieve, nav_porto);
+.
+
+//Se a quantidade restante de peixes no Oceano for <= a zero, entra aqui (encerra a Pescaria)
++!recolher_redes
+	: quantMaxCarga(CapaMaxArm) & qtPeixesCarregados(QuantPeixes) & qtPeixesDisponivel(QtRestante) & QtRestante<=0
+	<-
+	?nomeCapitao(NomeCapitao);
+	.print("Quantidade atual de Peixes no Barco: ", QuantPeixes);
+	.print("...02_recolhendo as redes para ir em direção ao Porto..."); 	
+	.wait(1000);
+	.print("PESCADOR pede ao CAPITÃO para irem ao Porto descarregar os peixes no Barco...");
+	.send(NomeCapitao, achieve, nav_porto);
 .	
 	
-+!g1t2_recolher_redes 
-	: quantMaxCarga(_,QuantPeixes)
+//Se for o diferente dos dois casos acima, entra aqui (continua a Pescaria)
++!recolher_redes 
+	: quantMaxCarga(CapaMaxArm) & qtPeixesCarregados(QuantPeixes) & qtPeixesDisponivel(QtRestante) & QtRestante>=0
 	<- 
-	.print("recolhendo as redes com os peixes pescados...");
-	.wait(1000);
+	.print("...03_recolhendo as redes com os peixes pescados...");
+	
 	lookupArtifact(oceano, ArtOceanoId); //busca o identificador do artefato Oceano
 	recolher_redes(ArtOceanoId); //função do artefato Barco
 	
-	//consulta na base de crenças do agente
-	?quantMaxCarga(_,QuantTotalPeixes);
-	
-	//.print("Quantidade de peixes pescados neste lançamento de redes: ", QuantTotalPeixes-QuantPeixes);
-	.print("Quantidade atual de Peixes no Barco: ", QuantPeixes);
-	!g1t2_recolher_redes;
-	.
+	//consuta na base de crenças do agente
+	?qtPeixesCarregados(QuantAtualPeixes);
+	.wait(1000);
+	.print("Quantidade atual de Peixes no Barco: ", QuantAtualPeixes);
+	!jogar_redes;
+.
 	
 /* other plans */

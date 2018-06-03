@@ -3,68 +3,132 @@
 
 /* application domain goals */
 
-!start.
+!iniciarTransporte.
 
-/* Plans */
-
-+!start : message(X) <- printMsg(X).
-+!start : true <- .print("Eu sou o Motorista!").
-
-+play(Name,_,ArtGrup) 
-	: .my_name(Name)
++!iniciarTransporte
+	: .my_name(NomeAgent) & identificador(IdCaminhao)
 	<-	
-	lookupArtifact(ArtGrup, ArtId);
+	.concat("caminhao_0", IdCaminhao, NomeCaminhao);
+	.print("Nome do Caminhão - Motorista: ", NomeCaminhao);
+	
+	lookupArtifact(NomeCaminhao, ArtId);
+	.print("ArtId do Caminhão - Motorista: ", ArtId);
+	
 	focus(ArtId);
-	.print("Focando no Caminhao: ", ArtGrup ,"...");
-	!criarEsquema(ArtGrup);
-	.
-
-+!criarEsquema(ArtGrup)
-	<-  
-	.concat("recolherPeixesPorto",ArtGrup, Scheme1Name);
-	createScheme(Scheme1Name, g2t1RecolherPeixesSch, Sch1ArtId);
+	incrementaEquipe(IdCaminhao, NomeAgent);
 	
-	.concat("levarPeixesDistribuidor",ArtGrup, Scheme2Name);
-	createScheme(Scheme2Name, g2t2LevarPeixDistribuidorSch, Sch2ArtId);
-	
-	//Instanciando esquema 01 da equipe de Transporte
-	addScheme(Scheme1Name);
-	.	
+	.print("Eu sou o: ", NomeAgent, " do: ", NomeCaminhao);
+	+meuCaminhaoEh(NomeCaminhao, IdCaminhao);
+	!verificarPeixesPorto;
+.
 
-+!g2t1_dirigir_ate_porto 
++novosPeixesPorto
+	: qtPeixesArmazenado(QuantPeixesArm) & QuantPeixesArm > 0
+	<-
+	.print("NOVOS PEIXES ADICIONADOS NO PORTO! - BORA CARREGAR PEIXES DE NOVO!");
+	!verificarPeixesPorto;
+.
+
++!verificarPeixesPorto
+	: qtPeixesArmazenado(QuantPeixesArm) & QuantPeixesArm > 0 & qtEquipe(QuantEqCaminhao) & QuantEqCaminhao < 2
+	<-
+	!montarEquipe;
+.
+
++!verificarPeixesPorto 
+	: qtPeixesArmazenado(QuantPeixesArm) & QuantPeixesArm > 0 & qtEquipe(QuantEqCaminhao) & QuantEqCaminhao == 2
+	<-
+	?nomeCarregador(NomeCarregador);
+	.print("MOTORISTA verifica com o CARREGADOR se ele está pronto para iniciar o Carregamento...");
+	.send(NomeCarregador, achieve, buscar_peixes_porto);
+.
+
+//+!verificarPeixesPorto 
+//	: qtPeixesArmazenado(QuantPeixesArm) & QuantPeixesArm == 0 & qtEquipe(QuantEqCaminhao) & QuantEqCaminhao == 3
+//	<-
+//	.print("PEDE AOS DEUSES POR MAIS PEIXES NO OCEANO..............");
+//	precisamosPeixesOceano;
+//.
+	
++!montarEquipe
+	: meuCaminhaoEh(NomeCaminhao, IdCaminhao)
 	<- 
-	.print("dirigindo ate o porto para buscar carregamento de peixes...")
+	.concat("carregadorAg", IdCaminhao, NomeCarregador);
+	
+	.create_agent(NomeCarregador, "carregador.asl");
+	
+	//Adiciona à sua base de crença o nome de seus companheiros de equipe
+	+nomeCarregador(NomeCarregador);
+	
+	.print("criou o agente: ", NomeCarregador);
+	
+	.send(NomeCarregador, tell, meuCaminhaoEh(NomeCaminhao, IdCaminhao));
+	
+	.wait(1000);
+	!verificarPeixesPorto;
+.
+
++!carregadorPronto <-
+ 	?nomeCarregador(NomeCarregador);
+	!dirigir_ate_porto;
+.
+
++!dirigir_ate_porto 
+	<- 
+	.print("...dirigindo ate o porto para buscar carregamento de peixes...")
 	dirigindo_ate_porto; //função do artefato Caminhao
-	.
+	.wait(2000);
+	!desligar_caminhao;
+.
 
-+!g2t1_desligar_caminhao 
++!desligar_caminhao 
 	<- 
-	.print("desligando o caminhao...")
+	?nomeCarregador(NomeCarregador);
+	.print("...desligando o caminhao...")
 	desligar_motores; //função do artefato Caminhao
-	.
+	.print("MOTORISTA pede ao CARREGADOR que localize o carregamento de peixes no Porto...");
+	.send(NomeCarregador, achieve, localizar_carregamento);
+.
 
-+!g2t2_ligar_caminhao 
++!ligar_caminhao 
 	<- 
-	.print("ligando o motor do caminhao...")
+	.print("...ligando o motor do caminhao para ir em direção ao Distribuidor...")
 	ligar_motores; //função do artefato Caminhao
-	.
+	!verificar_rota_gps;
+.
 
-+!g2t2_verificar_rota_gps 
++!verificar_rota_gps 
 	<- 
-	.print("verificando o melhor caminho ate o distribuidor...")
+	.print("...verificando o melhor caminho até o distribuidor...")
 	verificando_rota_gps; //função do artefato Caminhao
-	//!g2t2_dirigir_ate_distribuidor; 
-	.
+	!dirigir_ate_distribuidor;
+.
 
-+!g2t2_dirigir_ate_distribuidor 
++!dirigir_ate_distribuidor 
 	<- 
-	.print("dirigindo ate o distribuidor...")
+	.print("...dirigindo ate o distribuidor...")
 	dirigindo_ate_distribuidor; //função do artefato Caminhao
-	.
+	!descarr_peixes;
+.
 
-+!g2t2_descarr_peixes <- 
-	.print("retirando peixes do Camiinhão e descarregando no Distribuidor...");
++!descarr_peixes <- 
+	.print("...retirando peixes do Caminhão e descarregando no Distribuidor...");
 	lookupArtifact(distribuidor, ArtId); //busca o identificador do artefato Distribuidor
 	descarregar_peixes_distribuidor(ArtId); //função do artefato Caminhão	
-	.
+	!verificando_peixes_porto;
+.
+
++!verificando_peixes_porto 
+	: qtPeixesArmazenado(QuantPeixesArm) & QuantPeixesArm > 0 
+	<- 
+	.print("...ainda existem peixes a serem carregados no Porto...");
+	!dirigir_ate_porto;
+.
+
++!verificando_peixes_porto 
+	: qtPeixesArmazenado(QuantPeixesArm) & QuantPeixesArm <= 0 
+	<- 
+	.print("...neste momento não exitem peixes a serem carregados no Porto... aguardando sinal do Porto...");
+.
+
 /* other plans */

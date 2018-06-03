@@ -3,37 +3,53 @@
 
 /* application domain goals */
 
-!iniciarSimulacao.
+!iniciarNavegacao.
 
-+!iniciarSimulacao
++!iniciarNavegacao
 	: .my_name(NomeAgent) & identificador(IdBarco)
 	<-	
 	.concat("barco_0", IdBarco, NomeBarco);
-	.print("Nome do Barco Capitao: ", NomeBarco);
+	.print("Nome do Barco - Capitao: ", NomeBarco);
 	
 	lookupArtifact(NomeBarco, ArtId);
-	.print("ArtId do Barco Capitao: ", ArtId);
+//	.print("ArtId do Barco Capitao: ", ArtId);
 	
 	focus(ArtId);
-	incrementaTripulacao;
+	incrementaTripulacao(IdBarco, NomeAgent);
 	
 	.print("Eu sou o: ", NomeAgent, " do: ", NomeBarco);
 	+meuBarcoEh(NomeBarco, IdBarco);
 	!verificarPeixesOceano;
-	.
+.
+
++novosPeixesOceano
+	: qtPeixesDisponivel(QuantPeixesDisp) & QuantPeixesDisp> 0 & ancora("noMar")
+	<-
+	.print("NOVOS PEIXES ADICIONADOS NO OCEANO! - BORA PESCAR DE NOVO!");
+	!verificarPeixesOceano;
+.
 
 /* Plans */
 +!verificarPeixesOceano 
 	: qtPeixesDisponivel(QuantPeixesDisp) & QuantPeixesDisp > 0 & qtTripulacao(QuantTripbarco) & QuantTripbarco < 3
 	<-
 	!montarTripulacao;
-	.
+.
 
 +!verificarPeixesOceano 
 	: qtPeixesDisponivel(QuantPeixesDisp) & QuantPeixesDisp > 0 & qtTripulacao(QuantTripbarco) & QuantTripbarco == 3
 	<-
-	!g1t1_ligar_motor;
-	.
+	?nomeAuxPesca(NomeAuxPesca);
+	.print("CAPITÃO verifica com o AUX_PESCA se ele está pronto para iniciar a Pescaria...");
+	.send(NomeAuxPesca, achieve, iniciar_pescaria);
+.
+
++!verificarPeixesOceano 
+	: qtPeixesDisponivel(QuantPeixesDisp) & QuantPeixesDisp == 0 & qtTripulacao(QuantTripbarco) & QuantTripbarco == 3
+	<-
+	.print("PEDE AOS DEUSES POR MAIS PEIXES NO OCEANO..............");
+	precisamosPeixesOceano;
+.
 	
 +!montarTripulacao
 	: meuBarcoEh(NomeBarco, IdBarco)
@@ -55,53 +71,53 @@
 	.send(NomeAuxPesca, tell, meuBarcoEh(NomeBarco, IdBarco));
 
 	.wait(1000);
-	
-	.send(NomeAuxPesca, achieve, iniciar_pescaria);
-.
-
-+auxPescaPronto
- 	: nomePescador(NomePescador)
- 	<-
-	.send(NomePescador, achieve, iniciar_pescaria);
-.
-
-+pescadorPronto <-
 	!verificarPeixesOceano;
 .
 
-+!g1t1_ligar_motor <- 
-	.print("ligando os motores para iniciar a navegacao em mar aberto...");
-	ligar_motores; //função do artefato Barco
-	!g1t1_localizar_cardume;
-	.
++!auxPescaPronto <-
+ 	?nomePescador(NomePescador);
+ 	?nomeAuxPesca(NomeAuxPesca);
+ 	.print("CAPITÃO verifica com o PESCADOR se ele está pronto para iniciar a Pescaria...");
+	.send(NomePescador, achieve, iniciar_pescaria);
+.
 
-+!g1t1_localizar_cardume 
-	: nomePescador(NomePescador)
-	<- 
-	.print("se preparando para localizar os cardumes no mar...");
++!pescadorPronto <-
+	?nomePescador(NomePescador);
+	!ligar_motor;
+.
+
++!ligar_motor <- 
+	.print("...ligando os motores para iniciar a navegacao em mar aberto...");
+	ligar_motores; //função do artefato Barco
+	!localizar_cardume;
+.
+
++!localizar_cardume <- 
+	?nomePescador(NomePescador);
+	.print("...se preparando para localizar os cardumes no mar...");
 	piloto_automatico;	//função do artefato Barco
 	.wait(1000);
 	.print("cardume encontrado...");
 	
-	//Pede para o Pescador iniciar a pescaria em alto mar
-	.send(NomePescador, achieve, g1t2_jogar_redes);	
+	.print("CAPITÃO pede para o PESCADOR jogar as redes no Oceano...");
+	.send(NomePescador, achieve, jogar_redes);	
 .
 	
-+!g1t3_nav_porto <- 
-	.print("navegando em direção ao Porto para descarregar...");
++!nav_porto <- 
+	.print("...navegando em direção ao Porto para descarregar...");
 	.wait(1000);
 	navegando_para_porto; //função do artefato Barco
-	!g1t3_desligar_motores;
+	!desligar_motores;
 .
 	
-+!g1t3_desligar_motores 
-	: nomeAuxPesca(NomeAuxPesca)
-	<- 
-	.print("desligando os motores...");
++!desligar_motores <-
+	?nomeAuxPesca(NomeAuxPesca); 
+	.print("...desligando os motores...");
 	.wait(1000);
 	desligar_motores; //função do artefato Barco
 	
-	.send(NomeAuxPesca, achieve, g1t3_soltar_ancora);
+	.print("CAPITÃO pede para o AUX_PESCA soltar as ancoras no Oceano...");
+	.send(NomeAuxPesca, achieve, soltar_ancora);
 .
 
 /* other plans */

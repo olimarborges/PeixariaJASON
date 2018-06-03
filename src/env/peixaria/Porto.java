@@ -15,8 +15,8 @@ public class Porto extends Artifact {
 	}
 	
 	@OPERATION
-	void receber_peixes_barco(int qtCarga){//, OpFeedbackParam<Integer> peixes){
-		logger.info("Recebendo carregamento de peixes do barco!");
+	void receber_peixes_barco(int idBarco, int qtCarga){//, OpFeedbackParam<Integer> peixes){
+		logger.info("Recebendo carregamento de peixes do Barco "+idBarco);
 		int novaCapacidade = 0;
 		int qtPeixesArmazenado = (Integer) getObsProperty("qtPeixesArmazenado").getValue();
 		
@@ -24,12 +24,13 @@ public class Porto extends Artifact {
 		updateObsProperty("qtPeixesArmazenado", novaCapacidade); //adiciona a qtCarga de peixes que um barco descarregou
 		    	
 		logger.info("Quantidade total de peixes no Porto: "+novaCapacidade);
+		signal("novosPeixesPorto");
 	}
 	
 	//peixes é a quantidade de peixes retirados do Porto para o Caminhão
 	@OPERATION
-	void carregar_peixes_caminhao(int capacidadeCarregador, OpFeedbackParam<Integer> peixes){
-		logger.info("Achou carregamento de peixes!");
+	void carregar_peixes_caminhao(int idCaminhao, int capacidadeCarregador, OpFeedbackParam<Integer> peixes){
+		logger.info("Achou carregamento de peixes para o Caminhão "+idCaminhao);
 		int novaCapacidade = 0;
 		int qtPeixesArmazenado = (Integer) getObsProperty("qtPeixesArmazenado").getValue();
 		

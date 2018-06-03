@@ -19,33 +19,26 @@ public class Barco extends Artifact {
 		defineObsProperty("qtTripulacao",0);
 		defineObsProperty("identificador",identificador);
 		defineObsProperty("qtPeixesCarregados", 0);
-        defineObsProperty("quantMaxCarga", quantMaxCarga, 0);
+        defineObsProperty("quantMaxCarga", quantMaxCarga);
         defineObsProperty("motor",         "desligado");
         defineObsProperty("ancora",		   "noBarco");
         defineObsProperty("redes",         "noBarco");
         defineObsProperty("capacRede",      capacRede);
 	}
-	
-//	@OPERATION 
-//	void incrementaIdBarco(){
-//	    ObsProperty prop = getObsProperty("identificador");
-//	    prop.updateValue(prop.intValue()+1);
-//	    logger.info("Identificador incrementado");
-//	}
 
 	@OPERATION 
-	void incrementaTripulacao(){
+	void incrementaTripulacao(int idBarco, String nomeAgent){
 		int qtTripulacao = (Integer) getObsProperty("qtTripulacao").getValue();
 	    ObsProperty prop = getObsProperty("qtTripulacao");
 	    
 	    if(qtTripulacao<=3){
 	    	  prop.updateValue(prop.intValue()+1);
-	  	    logger.info((Integer) getObsProperty("identificador").getValue()+": Tripulacao incrementado");
+	  	    logger.info((Integer) getObsProperty("identificador").getValue()+": Novo membro:"+ nomeAgent +" da Tripulacão do Barco "+ idBarco +" adicionado");
 	    }else{
 	    	logger.info((Integer) getObsProperty("identificador").getValue()+": Tripulacao para o Barco esgotada!");
 	    }
 	}
-
+	
 	@OPERATION
 	void ligar_motores(){
 		ObsProperty prop = getObsProperty("motor");
@@ -84,17 +77,17 @@ public class Barco extends Artifact {
 	@OPERATION
 	//Recebe o artefato Oceano por parâmetro
 	void recolher_redes(ArtifactId idArtefato){
+		int idBarco = (Integer) getObsProperty("identificador").getValue();
 		int capRede = (Integer) getObsProperty("capacRede").getValue();
 		int qtPeixesCarreg = (Integer) getObsProperty("qtPeixesCarregados").getValue();
 		
 		ObsProperty prop = getObsProperty("redes");
 		ObsProperty prop2 = getObsProperty("qtPeixesCarregados");
-		ObsProperty prop3 = getObsProperty("quantMaxCarga");
 		
 		OpFeedbackParam<Integer> peixes = new OpFeedbackParam<Integer>();
 
 		try {
-			execLinkedOp(idArtefato, "pescar_cardume", capRede, peixes);
+			execLinkedOp(idArtefato, "pescar_cardume", idBarco, capRede, peixes);
 		} catch (OperationException e) {
 			e.printStackTrace();
 		}
@@ -103,9 +96,10 @@ public class Barco extends Artifact {
 		
 		prop.updateValue("noBarco");
 		prop2.updateValue(qtPeixesCarreg + peixes.get());
-		prop3.updateValue(1, (Integer) prop2.getValue());		
-
+		
 		logger.info((Integer) getObsProperty("identificador").getValue()+": Redes no barco!");
+		
+		//logger.info((Integer) getObsProperty("identificador").getValue()+": Quantidade atual de Peixes no Barco: "+prop2.getValue());
 	}
 	
 	@OPERATION
@@ -131,20 +125,19 @@ public class Barco extends Artifact {
 	@OPERATION
 	//Recebe o artefato Porto por parâmetro
 	void colocar_peixes_porto(ArtifactId idArtefato){
-		int qtCarga = (Integer) getObsProperty("quantMaxCarga").getValue();
+		int idBarco = (Integer) getObsProperty("identificador").getValue();
+		int qtCarga = (Integer) getObsProperty("qtPeixesCarregados").getValue();
 		
-		ObsProperty prop = getObsProperty("quantMaxCarga");
 		ObsProperty prop2 = getObsProperty("qtPeixesCarregados");
-		
+
 		if(qtCarga>0) {
 			try {
-				execLinkedOp(idArtefato, "receber_peixes_barco", qtCarga);
+				execLinkedOp(idArtefato, "receber_peixes_barco", idBarco, qtCarga);
 			} catch (OperationException e) {
 				e.printStackTrace();
 			}
 			
-			prop2.updateValue(0);			
-			prop.updateValue(1, (Integer) prop2.getValue());	
+			prop2.updateValue(0);
 			
 			logger.info((Integer) getObsProperty("identificador").getValue()+": Peixes descarregados no Porto!");
 		}

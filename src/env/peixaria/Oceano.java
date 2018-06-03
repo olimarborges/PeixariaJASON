@@ -2,6 +2,7 @@
 
 package peixaria;
 
+import java.util.Random;
 import java.util.logging.Logger;
 
 import cartago.Artifact;
@@ -17,10 +18,26 @@ public class Oceano extends Artifact {
 		defineObsProperty("qtPeixesDisponivel", qtPeixesDisponivel);
 	}
 	
-	//peixes é a quantidade de peixes retirados do aceano para o barco
+	//Pede aos Deuses por mais peixes no Oceano
 	@OPERATION
-	void pescar_cardume(int capacidadeRede, OpFeedbackParam<Integer> peixes){
-		logger.info("Achou Cardume!");
+	void precisamosPeixesOceano() {
+		try {
+			Thread.sleep(5000);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		Random valorAleatorio = new Random();
+		//Gera uma nova quantidade de peixes para o Oceano entre 1000 e 10000 peixes
+		int novaQuant = valorAleatorio.nextInt(10001) + 1000;
+		logger.info("Nova Quantidade de Peixes no Oceano: "+ novaQuant);
+		updateObsProperty("qtPeixesDisponivel", novaQuant);
+		signal("novosPeixesOceano");
+	}
+	
+	//peixes é a quantidade de peixes retirados do Oceano para o Barco
+	@OPERATION
+	void pescar_cardume(int idBarco, int capacidadeRede, OpFeedbackParam<Integer> peixes){
+		logger.info("Barco "+ idBarco +" - Achou Cardume!");
 		int novaCapacidade = 0;
 		int qtPeixesDisponivel = (Integer) getObsProperty("qtPeixesDisponivel").getValue();
 		if(qtPeixesDisponivel<capacidadeRede) {
@@ -33,6 +50,9 @@ public class Oceano extends Artifact {
 		}
 		    	
 		logger.info("Peixes disponíveis no mar: "+novaCapacidade);
+//		if((Integer) getObsProperty("qtPeixesDisponivel").getValue()==0) {
+//			novosPeixesOceano();
+//		}
 	}
 	
 	

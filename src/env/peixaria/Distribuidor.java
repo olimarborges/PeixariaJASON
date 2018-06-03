@@ -20,7 +20,12 @@ public class Distribuidor extends Artifact {
 		int novaCapacidade = 0;
 		int qtPeixesArmazenado = (Integer) getObsProperty("qtPeixesArmazenadoDis").getValue();
 		
+		logger.info("qtCarga: "+qtCarga);
+		logger.info("qtPeixesArmazenado: "+qtPeixesArmazenado);
+		
 		novaCapacidade = qtPeixesArmazenado + qtCarga;
+		logger.info("novaCapacidade: "+novaCapacidade);
+		
 		updateObsProperty("qtPeixesArmazenadoDis", novaCapacidade); //adiciona a qtCarga de peixes que um caminhão descarregou
 		    	
 		logger.info("Quantidade total de peixes no Distribuidor: "+novaCapacidade);

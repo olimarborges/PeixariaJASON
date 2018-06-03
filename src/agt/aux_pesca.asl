@@ -13,7 +13,7 @@
 	.concat("barco_0", IdBarco, NomeBarco);
 	lookupArtifact(NomeBarco, ArtBarcoId)[wid(NomeWorkspace)];
 	focus(ArtBarcoId);
-	incrementaTripulacao;
+	incrementaTripulacao(IdBarco, NomeAgent);
 	.print("Eu sou o: ", NomeAgent, " do: ", NomeBarco);
 	
 	//Adiciona à sua base de crença o nome de seus companheiros de tripulacao
@@ -29,36 +29,40 @@
 	//Focando no Porto
 	lookupArtifact(porto, ArtPortoId)[wid(NomeWorkspace)];
 	focus(ArtPortoId);
+//	.print("AUX_PESCA pede ao CAPITÃO para iniciarem a busca por peixes no Oceano, caso a tripulação já esteja completa...");
+//	.send(NomeCapitao, achieve, verificarPeixesOceano);
 .
 
 +!iniciar_pescaria 
-	:meuBarcoEh(_,IdBarco) & nomeCapitao(NomeCapitao)
+	: meuBarcoEh(_,IdBarco)
 	<-
-	!g1t1_puxar_ancora;
-	.send(NomeCapitao, tell, auxPescaPronto);
+	?nomeCapitao(NomeCapitao);
+	!puxar_ancora;
+	.print("AUX_PESCA responde ao CAPITÃO que está pronto para iniciar a Pescaria...");
+	.send(NomeCapitao, achieve, auxPescaPronto);
 .
 
-+!g1t1_puxar_ancora <- 
-	.print("puxando ancora para iniciar a navegacao em mar aberto...");
++!puxar_ancora <- 
+	.print("...puxando ancora para iniciar a navegacao em mar aberto...");
 	.wait(1000);
 	puxar_ancora; //função do artefato Barco
-	.
+.
 
-+!g1t3_soltar_ancora <- 
-	.print("soltar ancora para iniciar a parada...");
++!soltar_ancora <- 
+	.print("...soltar ancora para iniciar a parada...");
 	soltar_ancora; //função do artefato Barco
-	!g1t3_retir_peixes;
-	.
+	!retir_peixes;
+.
 
-+!g1t3_retir_peixes 
-	: nomeCapitao(NomeCapitao)
-	<- 
-	.print("retirando peixes do Barco...");
++!retir_peixes <- 
+	?nomeCapitao(NomeCapitao);
+	.print("...retirando peixes do Barco...");
 	.wait(1000);
 	lookupArtifact(porto, ArtId); //busca o identificador do artefato Porto
 	colocar_peixes_porto(ArtId); //função do artefato Barco
 	
-	//.send(NomeCapitao, achieve, verificarPeixesOceano);
-	.
+	.print("AUX_PESCA pede ao CAPITÃO para iniciarem a busca por peixes no Oceano novamente, após já terem descarregado sua carga no Porto...");
+	.send(NomeCapitao, achieve, verificarPeixesOceano);
+.
 
 /* other plans */
