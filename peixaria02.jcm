@@ -1,96 +1,42 @@
 mas peixaria {
-	
-	//Barco 01 ##############################
-	agent pedroCap1 : capitao.asl{ //capitao
-      focus: oceano, porto
+	//barco_01 ##############################
+	agent capitaoAg1 : capitao.asl{ //capitao1
+      focus: oceano, porto, barco_01
     }
-   	agent pedroPesc1 : pescador.asl{ // pescador
-      focus: oceano, porto
+    //barco_02 ##############################
+	agent capitaoAg2 : capitao.asl{ //capitao2
+      focus: oceano, porto, barco_02
     }
-    agent pedroAux1 : aux_pesca.asl{ //aux pesca
-      focus: oceano, porto
+    //caminhao_01 ##############################
+   	agent motoristaAg1 : motorista.asl{ //motorista1
+      focus: distribuidor, porto, caminhao_01
     }
-    
-    //Barco 02 ##############################
-   	agent pedroCap2 : capitao.asl{ //capitao
-      focus: oceano, porto
+    //caminhao_02 ##############################
+   	agent motoristaAg2 : motorista.asl{ //motorista2
+      focus: distribuidor, porto, caminhao_02
     }
-   	agent pedroPesc2 : pescador.asl{ // pescador
-      focus: oceano, porto
-    }
-    agent pedroAux2 : aux_pesca.asl{ //aux pesca
-      focus: oceano, porto
-    }
-    
-    //Caminhão 01 ##############################
-   	agent samuelMot1 : motorista.asl{ //capitao
-      focus: distribuidor, porto
-    }
-   	agent samuelCarr1 : carregador.asl{ // pescador
-      focus: distribuidor, porto
-    }
-    
-    //Caminhão 02 ##############################
-   	agent samuelMot2 : motorista.asl{ //capitao
-      focus: distribuidor, porto
-    }
-   	agent samuelCarr2 : carregador.asl{ // pescador
-      focus: distribuidor, porto
-    }
-	
-	//Artefatos
 	workspace peixaria{
-		
-		//Barco 01: capacidade máxima de peixes na rede por pescador = 25 / 
-		//quantidade máxima de carga permitida de peixes = 500
-		artifact barco_01: peixaria.Barco(25, 500)
-		//Barco 02: capacidade máxima de peixes na rede por pescador = 50 / 
-		//quantidade máxima de carga permitida de peixes = 1000
-		artifact barco_02: peixaria.Barco(50, 1000)
-		
-		//Caminhao 01: capacidade máxima de peixes que o carregador consegue carregar por vez = 25 /
-		//quantidade máxima de carga permitida de peixes = 400
-		artifact caminhao_01: peixaria.Caminhao(25, 400)
-		//Caminhao 02: capacidade máxima de peixes que o carregador consegue carregar por vez = 25 / 
-		//quantidade máxima de carga permitida de peixes = 1000
-		artifact caminhao_02: peixaria.Caminhao(30, 1000)
-		
-		//Oceano: quantidade de peixes disponível no mar = 100000
-		artifact oceano: peixaria.Oceano(100000)
-		//Porto: não há restrições de quantidade de armazenamento de peixes
+		/*Artefato: Barco
+		*  @parametro1: identificador
+		*  @parametro2: capacidade máxima de peixes na rede por pescador
+		*  @parametro3: quantidade máxima de carga permitida de peixes
+		*/
+		artifact barco_01: peixaria.Barco(1, 25, 50)
+		artifact barco_02: peixaria.Barco(2, 25, 50)
+		/*Artefato: Caminhao
+		*  @parametro1: identificador
+		*  @parametro2: capacidade máxima de peixes que o carregador consegue carregar por vez
+		*  @parametro3: quantidade máxima de carga permitida de peixes
+		*/
+		artifact caminhao_01: peixaria.Caminhao(1, 25, 100)
+		artifact caminhao_02: peixaria.Caminhao(2, 10, 100)
+		/*Artefato: Oceano*/
+		artifact oceano: peixaria.Oceano()
+		/*Artefato: Porto*/
 		artifact porto: peixaria.Porto()
-		//Distribuidor: não há restrições de quantidade de armazenamento de peixes
+		/*Artefato: Distribuidor*/
 		artifact distribuidor: peixaria.Distribuidor()
 	}
-	
-    organisation opeixaria: empresaPeixaria-os.xml {
-    	// #########################################
-    	// EQUIPE DE NAVEGAÇÃO #####################
-    	// #########################################
-        group barco_01: equipe_navegacao {           
-		        players: pedroCap1 capitao 
-		        		 pedroPesc1 pescador 
-		                 pedroAux1 aux_pesca
-        }
-        group barco_02: equipe_navegacao {     	
-        	players:  pedroCap2 capitao
-		        	  pedroPesc2 pescador
-		              pedroAux2 aux_pesca
-        }
-        
-        // #########################################
-    	// EQUIPE DE TRANSPORTE ####################
-    	// #########################################
-        group caminhao_01: equipe_transporte {
-	        players: samuelMot1 motorista
-	        		 samuelCarr1 carregador
-	    }
-	    group caminhao_02: equipe_transporte {
-	        players: samuelMot2 motorista
-	        		 samuelCarr2 carregador
-	    }
-    }
-
     // agent source path
     asl-path: src/agt, src/agt/inc
 }

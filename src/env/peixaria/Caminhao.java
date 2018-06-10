@@ -19,6 +19,7 @@ public class Caminhao extends Artifact {
 		defineObsProperty("qtEquipe",0);
 		defineObsProperty("identificador",identificador);
 		defineObsProperty("qtPeixesCarregados", 0);
+		defineObsProperty("histPeixesCarregados", 0);
         defineObsProperty("quantMaxCarga", quantMaxCarga);
         defineObsProperty("motor",         "desligado");
         defineObsProperty("capacCarregador", capacCarregador);
@@ -36,52 +37,52 @@ public class Caminhao extends Artifact {
 	    	logger.info((Integer) getObsProperty("identificador").getValue()+": Equipe para o Caminhão esgotada!");
 	    }
 	}
-
+	
 	@OPERATION
 	void dirigindo_ate_porto(){
 		try {
-			Thread.sleep(2000);
+			//Thread.sleep(2000);
+			logger.info((Integer) getObsProperty("identificador").getValue()+": Caminhão indo em direção ao Porto!");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		logger.info((Integer) getObsProperty("identificador").getValue()+": Caminhão indo em direção ao Porto!");
 	}
 	
 	@OPERATION
 	void dirigindo_ate_distribuidor(){
 		try {
-			Thread.sleep(2000);
+			//Thread.sleep(2000);
+			logger.info((Integer) getObsProperty("identificador").getValue()+": Caminhão indo em direção ao Distribuidor!");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		logger.info((Integer) getObsProperty("identificador").getValue()+": Caminhão indo em direção ao Distribuidor!");
 	}
 	
 	@OPERATION
 	void verificando_rota_gps(){
 		try {
-			Thread.sleep(2000);
+			//Thread.sleep(2000);
+			logger.info((Integer) getObsProperty("identificador").getValue()+": Verificando rota no GPS até o Distribuidor!");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		logger.info((Integer) getObsProperty("identificador").getValue()+": Verificando rota no GPS até o Distribuidor!");
 	}
 	
 	@OPERATION
 	void localizando_carregamento(){
 		try {
-			Thread.sleep(2000);
+			//Thread.sleep(2000);
+			logger.info((Integer) getObsProperty("identificador").getValue()+": Carregador localizando carregamento disponível no Porto!");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		logger.info((Integer) getObsProperty("identificador").getValue()+": Carregador localizando carregamento disponível no Porto!");
 	}
 	
 	@OPERATION
 	void ligar_motores(){
 		ObsProperty prop = getObsProperty("motor");
 		prop.updateValue("ligado");
-		logger.info((Integer) getObsProperty("identificador").getValue()+": Motor caminhão ligado!");	
+		logger.info((Integer) getObsProperty("identificador").getValue()+": Motor caminhão ligado!");
 	}
 	
 	@OPERATION
@@ -97,11 +98,14 @@ public class Caminhao extends Artifact {
 		int idCaminhao = (Integer) getObsProperty("identificador").getValue();
 		int qtPeixesCarreg = (Integer) getObsProperty("qtPeixesCarregados").getValue();
 		int capacCarregador = (Integer) getObsProperty("capacCarregador").getValue();
-
+		int histPeixesCarregados = (Integer) getObsProperty("histPeixesCarregados").getValue();
+		
 		ObsProperty prop2 = getObsProperty("qtPeixesCarregados");
+		ObsProperty prop3 = getObsProperty("histPeixesCarregados");
+		
 		
 		OpFeedbackParam<Integer> peixes = new OpFeedbackParam<Integer>();
-
+		
 		try {
 			execLinkedOp(idArtefato, "carregar_peixes_caminhao", idCaminhao, capacCarregador, peixes);
 		} catch (OperationException e) {
@@ -111,6 +115,7 @@ public class Caminhao extends Artifact {
 		logger.info((Integer) getObsProperty("identificador").getValue()+": Peixes retirados do Porto: "+peixes.get());
 		
 		prop2.updateValue(qtPeixesCarreg + peixes.get());
+		prop3.updateValue(histPeixesCarregados + peixes.get());
 		
 		logger.info((Integer) getObsProperty("identificador").getValue()+": Caminhão sendo carregado!");
 	}
@@ -119,6 +124,7 @@ public class Caminhao extends Artifact {
 	//Recebe o artefato Distribuidor por parâmetro
 	void descarregar_peixes_distribuidor(ArtifactId idArtefato){
 		int qtCarga = (Integer) getObsProperty("qtPeixesCarregados").getValue();
+		int histPeixesCarregados = (Integer) getObsProperty("histPeixesCarregados").getValue();
 		
 		ObsProperty prop2 = getObsProperty("qtPeixesCarregados");
 		
@@ -128,10 +134,11 @@ public class Caminhao extends Artifact {
 			} catch (OperationException e) {
 				e.printStackTrace();
 			}
-
+			
 			prop2.updateValue(0);
 			
 			logger.info((Integer) getObsProperty("identificador").getValue()+": Peixes descarregados no Distribuidor!");
+			logger.info((Integer) getObsProperty("identificador").getValue()+": HISTÓRICO de Peixes Carregados por este CAMINHÃO: " + histPeixesCarregados);
 		}	
 	}
 	

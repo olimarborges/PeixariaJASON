@@ -19,6 +19,7 @@ public class Barco extends Artifact {
 		defineObsProperty("qtTripulacao",0);
 		defineObsProperty("identificador",identificador);
 		defineObsProperty("qtPeixesCarregados", 0);
+		defineObsProperty("histPeixesCarregados", 0);
         defineObsProperty("quantMaxCarga", quantMaxCarga);
         defineObsProperty("motor",         "desligado");
         defineObsProperty("ancora",		   "noBarco");
@@ -80,9 +81,12 @@ public class Barco extends Artifact {
 		int idBarco = (Integer) getObsProperty("identificador").getValue();
 		int capRede = (Integer) getObsProperty("capacRede").getValue();
 		int qtPeixesCarreg = (Integer) getObsProperty("qtPeixesCarregados").getValue();
+		int histPeixesCarreg = (Integer) getObsProperty("histPeixesCarregados").getValue();
 		
 		ObsProperty prop = getObsProperty("redes");
 		ObsProperty prop2 = getObsProperty("qtPeixesCarregados");
+		ObsProperty prop3 = getObsProperty("histPeixesCarregados");
+		
 		
 		OpFeedbackParam<Integer> peixes = new OpFeedbackParam<Integer>();
 
@@ -96,6 +100,7 @@ public class Barco extends Artifact {
 		
 		prop.updateValue("noBarco");
 		prop2.updateValue(qtPeixesCarreg + peixes.get());
+		prop3.updateValue(histPeixesCarreg + peixes.get());
 		
 		logger.info((Integer) getObsProperty("identificador").getValue()+": Redes no barco!");
 		
@@ -105,21 +110,22 @@ public class Barco extends Artifact {
 	@OPERATION
 	void piloto_automatico(){
 		try {
-			Thread.sleep(2000);
+			//Thread.sleep(2000);
+			logger.info((Integer) getObsProperty("identificador").getValue()+": Piloto automático ligado!");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		logger.info((Integer) getObsProperty("identificador").getValue()+": Piloto automático ligado!");
 	}
 	
 	@OPERATION
 	void navegando_para_porto(){
 		try {
-			Thread.sleep(3000);
+			//Thread.sleep(3000);
+			logger.info((Integer) getObsProperty("identificador").getValue()+": Navegando para o Porto!");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		logger.info((Integer) getObsProperty("identificador").getValue()+": Navegando para o Porto!");
+		
 	}
 	
 	@OPERATION
@@ -127,6 +133,7 @@ public class Barco extends Artifact {
 	void colocar_peixes_porto(ArtifactId idArtefato){
 		int idBarco = (Integer) getObsProperty("identificador").getValue();
 		int qtCarga = (Integer) getObsProperty("qtPeixesCarregados").getValue();
+		int histPeixesCarregados = (Integer) getObsProperty("histPeixesCarregados").getValue();
 		
 		ObsProperty prop2 = getObsProperty("qtPeixesCarregados");
 
@@ -140,6 +147,7 @@ public class Barco extends Artifact {
 			prop2.updateValue(0);
 			
 			logger.info((Integer) getObsProperty("identificador").getValue()+": Peixes descarregados no Porto!");
+			logger.info((Integer) getObsProperty("identificador").getValue()+": HISTÓRICO de Peixes Armazenados neste BARCO: " + histPeixesCarregados);
 		}
 	}
 	

@@ -4,7 +4,8 @@ package peixaria;
 
 import java.util.logging.Logger;
 
-import cartago.*;
+import cartago.Artifact;
+import cartago.OPERATION;
 
 public class Distribuidor extends Artifact {
 	
@@ -19,16 +20,17 @@ public class Distribuidor extends Artifact {
 		logger.info("Recebendo carregamento de peixes do caminhão!");
 		int novaCapacidade = 0;
 		int qtPeixesArmazenado = (Integer) getObsProperty("qtPeixesArmazenadoDis").getValue();
-		
-		logger.info("qtCarga: "+qtCarga);
-		logger.info("qtPeixesArmazenado: "+qtPeixesArmazenado);
+
+//		logger.info("qtCarga: "+qtCarga);
+//		logger.info("qtPeixesArmazenado: "+qtPeixesArmazenado);
 		
 		novaCapacidade = qtPeixesArmazenado + qtCarga;
-		logger.info("novaCapacidade: "+novaCapacidade);
-		
 		updateObsProperty("qtPeixesArmazenadoDis", novaCapacidade); //adiciona a qtCarga de peixes que um caminhão descarregou
+		
+		logger.info("Quantidade total de peixes no Distribuidor "+novaCapacidade);
 		    	
-		logger.info("Quantidade total de peixes no Distribuidor: "+novaCapacidade);
+		//logger.info("Quantidade total de peixes no Distribuidor: "+novaCapacidade);
+		logger.info("HISTÓRICO de Peixes Armazenados no DISTRIBUIDOR:" + novaCapacidade);
 	}	
 	
 }
