@@ -1,0 +1,63 @@
+mas peixaria {
+	//barco_01 ##############################
+	agent capitaoAg1 : capitao.asl{ //capitao1
+      focus: oceano, porto, barco_01
+    }
+    //barco_02 ##############################
+	agent capitaoAg2 : capitao.asl{ //capitao2
+      focus: oceano, porto, barco_02
+    }
+   	//barco_03 ##############################
+	agent capitaoAg3 : capitao.asl{ //capitao3
+      focus: oceano, porto, barco_03
+    }
+    //barco_04 ##############################
+	agent capitaoAg4 : capitao.asl{ //capitao4
+      focus: oceano, porto, barco_04
+    }
+    
+    //caminhao_01 ##############################
+   	agent motoristaAg1 : motorista.asl{ //motorista1
+      focus: distribuidor, porto, caminhao_01
+    }
+    //caminhao_02 ##############################
+   	agent motoristaAg2 : motorista.asl{ //motorista2
+      focus: distribuidor, porto, caminhao_02
+    }
+    //caminhao_03 ##############################
+   	agent motoristaAg3 : motorista.asl{ //motorista3
+      focus: distribuidor, porto, caminhao_03
+    }
+    //caminhao_04 ##############################
+   	agent motoristaAg4 : motorista.asl{ //motorista4
+      focus: distribuidor, porto, caminhao_04
+    }
+	workspace peixaria{
+		/*Artefato: Barco
+		*  @parametro1: identificador
+		*  @parametro2: capacidade máxima de peixes na rede por pescador
+		*  @parametro3: quantidade máxima de carga permitida de peixes
+		*/
+		artifact barco_01: peixaria.Barco(1, 30, 100)
+		artifact barco_02: peixaria.Barco(2, 15, 200)
+		artifact barco_03: peixaria.Barco(3, 100, 100)
+		artifact barco_04: peixaria.Barco(4, 200, 200)
+		/*Artefato: Caminhao
+		*  @parametro1: identificador
+		*  @parametro2: capacidade máxima de peixes que o carregador consegue carregar por vez
+		*  @parametro3: quantidade máxima de carga permitida de peixes
+		*/
+		artifact caminhao_01: peixaria.Caminhao(1, 50, 100)
+		artifact caminhao_02: peixaria.Caminhao(2, 50, 100)
+		artifact caminhao_03: peixaria.Caminhao(3, 50, 100)
+		artifact caminhao_04: peixaria.Caminhao(4, 50, 100)
+		/*Artefato: Oceano*/
+		artifact oceano: peixaria.Oceano()
+		/*Artefato: Porto*/
+		artifact porto: peixaria.Porto()
+		/*Artefato: Distribuidor*/
+		artifact distribuidor: peixaria.Distribuidor()
+	}
+    // agent source path
+    asl-path: src/agt, src/agt/inc
+}
